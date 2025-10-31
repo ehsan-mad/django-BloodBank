@@ -42,7 +42,21 @@ INSTALLED_APPS = [
 # Local apps
 INSTALLED_APPS += [
     'accounts',
+    'donations',
+    'analytics',
+    'django_q',
 ]
+
+# Django Q configuration
+Q_CLUSTER = {
+    'name': 'blood_bank',
+    'workers': 4,
+    'timeout': 60,
+    'save_limit': 250,
+    'queue_limit': 500,
+    'label': 'Django Q',
+    'orm': 'default'  # Use database instead of Redis
+}
 
 # Use custom user model
 AUTH_USER_MODEL = 'accounts.User'
@@ -137,8 +151,10 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

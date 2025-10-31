@@ -21,8 +21,11 @@ class RegisterView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
-            payload = error_response('Unable to register or account created earlier', serializer.errors)
-            return Response(payload, status=status.HTTP_400_BAD_REQUEST)
+            return error_response(
+                'Unable to register or account created earlier',
+                errors=serializer.errors,
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
             user = serializer.save()
@@ -34,11 +37,17 @@ class RegisterView(generics.CreateAPIView):
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
 
             data = {"username": user.username, "email": user.email, "blood_group": user.blood_group}
-            payload = success_response('Register successful', data)
-            return Response(payload, status=status.HTTP_200_OK)
+            return success_response(
+                'Register successful',
+                data=data,
+                status_code=status.HTTP_201_CREATED
+            )
         except Exception as exc:
-            payload = error_response('Unable to register or account created earlier', {'detail': str(exc)})
-            return Response(payload, status=status.HTTP_400_BAD_REQUEST)
+            return error_response(
+                'Unable to register or account created earlier',
+                errors={'detail': str(exc)},
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -59,12 +68,18 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         try:
             serializer.is_valid(raise_exception=True)
         except serializers.ValidationError as exc:
-            payload = error_response('Unable to login', exc.detail)
-            return Response(payload, status=status.HTTP_400_BAD_REQUEST)
+            return error_response(
+                'Unable to login',
+                errors=exc.detail,
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
 
         tokens = serializer.validated_data
-        payload = success_response('Login successful', tokens)
-        return Response(payload, status=status.HTTP_200_OK)
+        return success_response(
+            'Login successful',
+            data=tokens,
+            status_code=status.HTTP_200_OK
+        )
 
 
 class VerifyEmailView(APIView):

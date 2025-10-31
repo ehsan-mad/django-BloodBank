@@ -19,15 +19,18 @@ def verify_verification_token(token, max_age=60 * 60 * 24):
         return None
 
 
-def success_response(message, data=None):
+from rest_framework.response import Response
+from rest_framework import status as http_status
+
+def success_response(message, data=None, status_code=http_status.HTTP_200_OK):
     payload = {"status": "success", "message": message}
     if data is not None:
         payload["data"] = data
-    return payload
+    return Response(payload, status=status_code)
 
 
-def error_response(message, errors=None):
+def error_response(message, errors=None, status_code=http_status.HTTP_400_BAD_REQUEST):
     payload = {"status": "error", "message": message}
     if errors is not None:
         payload["errors"] = errors
-    return payload
+    return Response(payload, status=status_code)

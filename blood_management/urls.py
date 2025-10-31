@@ -30,9 +30,6 @@ urlpatterns = [
     path('api/v1/health/', health_view),
     path('api/v1/auth/', include('accounts.urls')),
     path('api/v1/profile/', ProfileView.as_view(), name='profile'),
-    # future app include placeholders:
-    # path('api/v1/auth/', include('accounts.urls')),
-    # path('api/v1/donations/', include('donations.urls')),
-    # path('api/v1/requests/', include('requests.urls')),
-    # path('api/v1/dashboard/', include('dashboard.urls')),
+    path('api/v1/blood/', include('donations.urls')),  # All blood-related endpoints under /api/v1/blood/
+    path('api/v1/analytics/', include('analytics.urls')),  # Analytics endpoints under /api/v1/analytics/
 ]

@@ -1,0 +1,36 @@
+Module 3 Overview
+
+Inventory Model: Introduce Inventory (global unit counts by blood group, low-stock thresholds, audit timestamps) plus InventoryTransaction to log every adjustment (donation in, request out, manual admin corrections).
+Donation Flow: Donation model tied to donor user, quantity (ml or bags), donation_date, status (pending → approved/rejected). Endpoints: create donation request (donor), admin list/approve/reject, donor history. Approval should increment inventory and log a transaction; rejection leaves inventory untouched.
+Request Flow: BloodRequest model for hospitals/admins with patient info, needed quantity, urgency, status (pending → fulfilled/denied). Endpoints: create request (admin), list/filter, approve/fulfill (deduct inventory if sufficient; update transaction log), cancel/deny. Enforce rules: must have enough stock, respect ABO compatibility (configurable helper), auto-fail if insufficient units.
+Dashboards & Reports: Aggregated endpoints: daily/weekly donation volume, pending approvals, stock levels per blood group, recent transactions. Prepare DRF views returning structured JSON for admin dashboards.
+Validation & Automation: Signals or service layer to enforce max donation frequency per donor, prevent overlapping pending donations, and auto-flag low stock (set is_low flag, optional notification hook for later).
+Testing Plan: Unit tests for business rules (inventory adjustments, compatibility, donation frequency) and API tests for the new endpoints (happy path + failure cases). Fixtures/factories to seed sample data for tests.
+
+Data flow
+
+Donations:
+
+pending → approved (adds blood to inventory)
+pending → rejected (no inventory change)
+Blood Requests:
+
+pending → fulfilled (removes blood from inventory)
+pending → denied (no inventory change)
+
+module-5
+Reports:
+Summary reports with customizable parameters
+Report caching to improve performance
+Export functionality (JSON, Excel, PDF)
+Trend analysis and forecasting
+Charts:
+Donation trends over time
+Blood type distribution
+Request fulfillment rates
+Inventory forecasts with trend lines
+Advanced Features:
+Time series analysis for inventory forecasting
+Data aggregation by day/week/month
+Blood type-specific analytics
+Cache management with locking mechanism
