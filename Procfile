@@ -1,0 +1,1 @@
+web: gunicorn blood_management.wsgi:application --log-file -
