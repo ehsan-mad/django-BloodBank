@@ -11,7 +11,6 @@ import os
 from pathlib import Path
 from datetime import timedelta
 
-import dj_database_url
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -93,47 +92,31 @@ TEMPLATES = [
 WSGI_APPLICATION = 'blood_management.wsgi.application'
 
 
-# Database (use DATABASE_URL env var, fall back to sqlite for quick dev)
-DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///' + str(BASE_DIR / 'db.sqlite3'))
+# Database configuration for local development by default
+DB_ENGINE = os.getenv('DB_ENGINE', 'django.db.backends.sqlite3')
 
-# If using MySQL via a DATABASE_URL, allow PyMySQL to act as MySQLdb on platforms where
-# installing mysqlclient is difficult (Windows). Developers can install mysqlclient
-# instead if they prefer.
-if DATABASE_URL.startswith('mysql'):
-    try:
-        import pymysql
-        pymysql.install_as_MySQLdb()
-    except Exception:
-        # PyMySQL might not be installed yet; migrations/install step will instruct to install it.
-        pass
-
-# If explicit DB_* variables are provided prefer them (useful for local MySQL via XAMPP)
-DB_NAME = os.getenv('DB_NAME')
-DB_USER = os.getenv('DB_USER')
-DB_PASSWORD = os.getenv('DB_PASSWORD')
-DB_HOST = os.getenv('DB_HOST')
-DB_PORT = os.getenv('DB_PORT')
-DB_CHARSET = os.getenv('DB_CHARSET', 'utf8mb4')
-
-if DB_NAME and DB_USER:
-    # Build Django DATABASES dict from explicit parts
+if DB_ENGINE == 'django.db.backends.sqlite3':
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.mysql' if DATABASE_URL.startswith('mysql') or os.getenv('DB_ENGINE', '').startswith('mysql') else 'django.db.backends.postgresql',
-            'NAME': DB_NAME,
-            'USER': DB_USER,
-            'PASSWORD': DB_PASSWORD,
-            'HOST': DB_HOST or '127.0.0.1',
-            'PORT': DB_PORT or '3306',
-            'OPTIONS': {
-                'charset': DB_CHARSET,
-            },
+            'ENGINE': DB_ENGINE,
+            'NAME': os.getenv('DB_NAME', str(BASE_DIR / 'db.sqlite3')),
         }
     }
 else:
     DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=int(os.getenv('CONN_MAX_AGE', '0')))
+        'default': {
+            'ENGINE': DB_ENGINE,
+            'NAME': os.getenv('DB_NAME'),
+            'USER': os.getenv('DB_USER', ''),
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', ''),
+        }
     }
+
+    db_charset = os.getenv('DB_CHARSET')
+    if db_charset:
+        DATABASES['default'].setdefault('OPTIONS', {})['charset'] = db_charset
 
 
 # Password validation
